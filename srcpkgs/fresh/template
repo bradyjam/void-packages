@@ -1,0 +1,29 @@
+# Template file for 'fresh'
+pkgname=fresh
+version=0.4.4
+revision=1
+build_style=cargo
+make_install_args="--path crates/fresh-editor"
+# e2e tests unavailable in chroot; run unit tests only.
+# Two remote-agent unit tests skipped: they spawn a helper binary not present.
+make_check_args="-p fresh-editor --lib -- --skip services::remote::connection::tests::heartbeat_keeps_channel_warm_and_exits_on_drop --skip services::remote::transport::tests::kube_reconnect_task_spawns_and_aborts_cleanly"
+hostmakedepends="pkg-config"
+makedepends="oniguruma-devel"
+short_desc="Terminal based IDE & text editor: easy, powerful and fast"
+maintainer="James Brady <bradyjam@mailbox.org>"
+license="GPL-2.0-or-later"
+homepage="https://getfresh.dev/"
+changelog="https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/CHANGELOG.md"
+distfiles="https://github.com/sinelaw/fresh/archive/refs/tags/v${version}.tar.gz"
+checksum=2573f69ae949074b7b1debf286c5890935e9d5db2eec855f997715bbd94ac8fd
+
+post_install() {
+	vman crates/fresh-editor/resources/fresh.1
+	vinstall crates/fresh-editor/resources/fresh.desktop 644 usr/share/applications
+	for icon in docs/icons/linux/hicolor/*/apps/fresh.png; do
+		size=$(basename $(dirname $(dirname "$icon")))
+		vinstall "$icon" 644 usr/share/icons/hicolor/${size}/apps
+	done
+}
+
+
